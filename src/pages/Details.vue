@@ -104,22 +104,28 @@
             </div>
 
             <div class="shadow-box table-shadow-box">
-                <div class="dropdown dropdown-clear-data">
-                    <button class="btn btn-sm btn-outline-danger dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <font-awesome-icon icon="trash" /> {{ $t("Clear Data") }}
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li>
-                            <button type="button" class="dropdown-item" @click="clearEventsDialog">
-                                {{ $t("Events") }}
-                            </button>
-                        </li>
-                        <li>
-                            <button type="button" class="dropdown-item" @click="clearHeartbeatsDialog">
-                                {{ $t("Heartbeats") }}
-                            </button>
-                        </li>
-                    </ul>
+                <div class="d-flex justify-content-between align-items-center">
+                    <select v-model="heartbeatSource" class="form-select form-select-sm" aria-label=".form-select-sm example" style="width: 200px">
+                        <option value="important" selected>Important</option>
+                        <option value="all">All</option>
+                    </select>
+                    <div class="dropdown dropdown-clear-data">
+                        <button class="btn btn-sm btn-outline-danger dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <font-awesome-icon icon="trash" /> {{ $t("Clear Data") }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <button type="button" class="dropdown-item" @click="clearEventsDialog">
+                                    {{ $t("Events") }}
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="dropdown-item" @click="clearHeartbeatsDialog">
+                                    {{ $t("Heartbeats") }}
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 <table class="table table-borderless table-hover">
                     <thead>
@@ -212,6 +218,7 @@ export default {
                 hideCount: true,
                 chunksNavigation: "scroll",
             },
+            heartbeatSource: "important"
         };
     },
     computed: {
@@ -247,10 +254,14 @@ export default {
         },
 
         importantHeartBeatList() {
-            if (this.$root.importantHeartbeatList[this.monitor.id]) {
+            const source = this.heartbeatSource === "all" ?
+                this.$root.heartbeatList :
+                this.$root.importantHeartbeatList;
+
+            if (source[this.monitor.id]) {
                 // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-                this.heartBeatList = this.$root.importantHeartbeatList[this.monitor.id];
-                return this.$root.importantHeartbeatList[this.monitor.id];
+                this.heartBeatList = JSON.parse(JSON.stringify( source[this.monitor.id])).reverse();
+                return source[this.monitor.id];
             }
 
             return [];
